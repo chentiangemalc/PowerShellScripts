@@ -1,4 +1,34 @@
-﻿Set-StrictMode -Version Latest
+﻿[CmdletBinding()]
+param(
+[Parameter(Position=0)]
+[ValidateScript({
+    if( -Not ($_ | Test-Path) ){
+        throw "File or folder $_ does not exist"
+    }
+
+    if($_.Extension -ne ".etl"){
+        throw "Source file must be .etl file"
+    }
+    return $true
+})]
+[System.IO.FileInfo]$Path,
+
+[Parameter(Position=1)]
+[ValidateScript({
+    if( -Not ($path.DirectoryName | Test-Path) ){
+        throw "File or folder does not exist"
+    }
+
+    if($_.Extension -ne ".pcap") {
+        throw "Estination file must be .pcap file"
+    }
+    return $true
+})]
+[System.IO.FileInfo]$Destination,
+
+[Parameter(Position=2)]
+[Uint32]$MaxPacketSizeBytes = 65536)
+
 
 $csharp_code = @'
 using System;
@@ -75,32 +105,4 @@ namespace chentiangemalc
 
 Add-Type -Type $csharp_code
 
-Function ConvertEtl-ToPcap
-{
-    param(
-        [ValidateScript({
-            if( -Not ($_ | Test-Path) ){
-                throw "File or folder $_ does not exist"
-            }
-
-            if($_.Extension -ne ".etl"){
-                throw "Source file must be .etl file"
-            }
-            return $true
-        })]
-        [System.IO.FileInfo]$Path,
-        [ValidateScript({
-            if( -Not ($path.DirectoryName | Test-Path) ){
-                throw "File or folder does not exist"
-            }
-
-            if($_.Extension -ne ".pcap") {
-                throw "Estination file must be .pcap file"
-            }
-            return $true
-        })]
-        [System.IO.FileInfo]$Destination,
-        [Uint32]$MaxPacketSizeBytes = 65536)
-
-   [chentiangemalc.NetworkRoutines]::ConvertEtlToPcap($PAth.FullName,$Destination.FullName,$MaxPacketSizeBytes)
-}
+[chentiangemalc.NetworkRoutines]::ConvertEtlToPcap($PAth.FullName,$Destination.FullName,$MaxPacketSizeBytes)
