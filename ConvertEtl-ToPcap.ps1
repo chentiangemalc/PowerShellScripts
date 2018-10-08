@@ -105,4 +105,4 @@ namespace chentiangemalc
 
 Add-Type -Type $csharp_code
 
-[chentiangemalc.NetworkRoutines]::ConvertEtlToPcap($PAth.FullName,$Destination.FullName,$MaxPacketSizeBytes)
+[chentiangemalc.NetworkRoutines]::ConvertEtlToPcap($Path.FullName,$Destination.FullName,$MaxPacketSizeBytes)
