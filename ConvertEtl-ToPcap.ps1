@@ -43,9 +43,10 @@ namespace chentiangemalc
 {
     public static class NetworkRoutines
     {
-        public static void ConvertEtlToPcap(string source, string destination, UInt32 maxPacketSize)
+
+        public static long ConvertEtlToPcap(string source, string destination, UInt32 maxPacketSize)
         {
-            var networkTrace = new Guid("{00000001-0000-0000-0000-000000000000}");
+            int result = 0;
             using (BinaryWriter writer = new BinaryWriter(File.Open(destination, FileMode.Create)))
             {
 
@@ -65,23 +66,32 @@ namespace chentiangemalc
                 writer.Write(snaplen);
                 writer.Write(network);
 
+                long c = 0;
+                long t = 0;
                 using (var reader = new EventLogReader(source, PathType.FilePath))
                 {
                     EventRecord record;
                     while ((record = reader.ReadEvent()) != null)
                     {
+                        c++;
+                        t++;
+                        if (c == 100000)
+                        {
+                            Console.WriteLine(String.Format("Processed {0} events",t));
+                            c = 0;
+                        }
                         using (record)
                         {
-                            if (record.ActivityId == networkTrace)
+                            if (record.Id == 1001 && record.ProviderName == "Microsoft-Windows-NDIS-PacketCapture")
                             {
+                                result++;
                                 DateTime timeCreated = (DateTime)record.TimeCreated;
-
                                 UInt32 ts_sec = (UInt32)((timeCreated.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
                                 UInt32 ts_usec = (UInt32)(((timeCreated.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds) - ((UInt32)((timeCreated.Subtract(new DateTime(1970, 1, 1))).TotalSeconds * 1000))) * 1000;
                                 UInt32 incl_len = (UInt32)record.Properties[2].Value;
                                 if (incl_len > maxPacketSize)
                                 {
-                                    throw new System.InvalidOperationException(String.Format("Packet size of {0} exceeded max packet size {1}", incl_len, maxPacketSize));
+                                   Console.WriteLine(String.Format("Packet size of {0} exceeded max packet size {1}, packet ignored",incl_len,maxPacketSize));
                                 }
                                 UInt32 orig_len = incl_len;
 
@@ -95,9 +105,8 @@ namespace chentiangemalc
                         }
                     }
                 }
-
             }
-
+            return result;
         }
     }
 }
@@ -105,4 +114,6 @@ namespace chentiangemalc
 
 Add-Type -Type $csharp_code
 
-[chentiangemalc.NetworkRoutines]::ConvertEtlToPcap($Path.FullName,$Destination.FullName,$MaxPacketSizeBytes)
+$result = [chentiangemalc.NetworkRoutines]::ConvertEtlToPcap($Path.FullName,$Destination.FullName,$MaxPacketSizeBytes)
+
+Write-Host "$result packets converted."
