@@ -43,8 +43,7 @@ namespace chentiangemalc
 {
     public static class NetworkRoutines
     {
-
-        public static long ConvertEtlToPcap(string source, string destination, UInt32 maxPacketSize)
+    public static long ConvertEtlToPcap(string source, string destination, UInt32 maxPacketSize)
         {
             int result = 0;
             using (BinaryWriter writer = new BinaryWriter(File.Open(destination, FileMode.Create)))
@@ -75,14 +74,14 @@ namespace chentiangemalc
                     {
                         c++;
                         t++;
-                        if (c == 100000)
+                        if (c == 10000)
                         {
-                            Console.WriteLine(String.Format("Processed {0} events",t));
+                            Console.WriteLine(String.Format("Processed {0} events with {1} packets processed",t,result));
                             c = 0;
                         }
                         using (record)
                         {
-                            if (record.Id == 1001 && record.ProviderName == "Microsoft-Windows-NDIS-PacketCapture")
+                            if (record.ProviderName == "Microsoft-Windows-NDIS-PacketCapture")
                             {
                                 result++;
                                 DateTime timeCreated = (DateTime)record.TimeCreated;
