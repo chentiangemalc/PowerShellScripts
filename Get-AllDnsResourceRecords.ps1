@@ -52,7 +52,7 @@ ForEach ($Zone in $Zones) {
             RecordClass,`
             RecordType,`
             Timestamp,`
-            TimeTyoLive,`
+            TimeToLive,`
             @{label="Data";expression={
                 $r = $_.RecordData
                 switch ($_.RecordType)
