@@ -3,8 +3,8 @@
     [switch]$ShowFilenames 
 )
 
-$dirCount = 0
-$fileCount = 0
+$global:dirCount = 0
+$global:fileCount = 0
 
 Function Register-AbsolutePath {
   param($absolute)
