@@ -1,5 +1,6 @@
 ﻿param (
-    [string]$Path = (Get-Location)
+    [string]$Path = (Get-Location),
+    [switch]$ShowFilenames 
 )
 
 $dirCount = 0
@@ -21,7 +22,14 @@ Function Get-Summary {
 Function Walk-Directory {
   param($directory, $prefix = "")
   
-  $filepaths = @(Get-ChildItem -Path $directory | Sort-Object Name | Select-Object -ExpandProperty Name)
+  if ($ShowFilenames)
+  {
+    $filepaths = @(Get-ChildItem -Path $directory | Sort-Object Name | Select-Object -ExpandProperty Name)
+  }
+  else
+  {
+    $filepaths = @(Get-ChildItem -Path $directory -Directory | Sort-Object Name | Select-Object -ExpandProperty Name)
+  }
   for ($i = 0; $i -lt $filepaths.Length; $i++) {
     if ($filepaths[$i][0] -eq ".") {
       continue
